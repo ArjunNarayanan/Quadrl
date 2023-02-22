@@ -4,10 +4,10 @@ include("random_polygon_environment.jl")
 
 discount = 1.0
 epsilon = 0.05f0
-minibatch_size = 32
-episodes_per_iteration = 100
-num_epochs = 10
-num_iter = 500
+minibatch_size = 64
+episodes_per_iteration = 200
+epochs_per_iteration = 20
+num_iter = 2000
 quad_alg = "catmull-clark"
 root_dir = "/global/home/users/arjunnarayanan/Research/MeshRL/Quadrl/"
 
@@ -22,5 +22,13 @@ wrapper = RandPolyEnv(poly_degree, max_actions, quad_alg)
 policy = SimplePolicy.Policy(216, 128, 5, 5) |> gpu
 optimizer = ADAM(1e-4)
 
-rollouts = PPO.EpisodeData()
-PPO.collect_rollouts!(rollouts, wrapper, policy, episodes_per_iteration)
+PPO.ppo_iterate!(policy, 
+                 wrapper, 
+                 optimizer,
+                 episodes_per_iteration, 
+                 minibatch_size, 
+                 num_iter, 
+                 evaluator,
+                 epochs_per_iteration,
+                 discount,
+                 epsilon)

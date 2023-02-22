@@ -158,7 +158,7 @@ function PPO.number_of_actions_per_state(state)
     am = state.action_mask
     @assert ndims(vs) == 3
     @assert ndims(am) == 2
-    @assert size(vs, 2) == size(am, 1)
-    return size(vs, 2)
+    @assert size(vs, 2) * NUM_ACTIONS_PER_EDGE == size(am, 1)
+    return size(am, 1)
 end
 #####################################################################################################################
