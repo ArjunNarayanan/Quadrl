@@ -1,26 +1,55 @@
+using TOML
 include("src/quad_game_utilities.jl")
 include("random_polygon_environment.jl")
 
+function initialize_policy(model_config)
+    policy = SimplePolicy.Policy(
+        model_config["input_channels"],
+        model_config["hidden_channels"],
+        model_config["num_hidden_layers"],
+        model_config["output_channels"]
+    )
+    return policy
+end
 
-discount = 1.0
-epsilon = 0.05f0
-minibatch_size = 64
-episodes_per_iteration = 200
-epochs_per_iteration = 20
-num_iter = 2000
-quad_alg = "catmull-clark"
-root_dir = "/global/home/users/arjunnarayanan/Research/MeshRL/Quadrl/"
+function initialize_environment(env_config)
+    env = RandPolyEnv(
+        env_config["polygon_degree"],
+        env_config["max_actions"],
+        env_config["quad_alg"]
+    )
+    return env
+end
 
-num_evaluation_trajectories = 100
-output_dir = joinpath(root_dir, "output")
+
+ARGS = ["output/model-1/config.toml"]
+@assert length(ARGS) == 1 "Missing path to config file"
+config_file = ARGS[1]
+println("\t\tUSING CONFIG FILE : ", config_file)
+config = TOML.parsefile(config_file)
+
+
+wrapper = initialize_environment(config["environment"])
+policy = initialize_policy(config["policy"]) |> gpu
+
+evaluator_config = config["evaluator"]
+default_outputdir = dirname(config_file)
+output_dir = get(evaluator_config, "output_directory", default_outputdir)
+num_evaluation_trajectories = evaluator_config["num_evaluation_trajectories"]
 evaluator = SaveBestModel(output_dir, num_evaluation_trajectories)
 
-poly_degree = 10
-max_actions = 20
-wrapper = RandPolyEnv(poly_degree, max_actions, quad_alg)
 
-policy = SimplePolicy.Policy(216, 128, 5, 5) |> gpu
-optimizer = ADAM(1e-4)
+ppo_config = config["PPO"]
+discount = ppo_config["discount"]
+epsilon = Float32(ppo_config["epsilon"])
+minibatch_size = ppo_config["minibatch_size"]
+episodes_per_iteration = ppo_config["episodes_per_iteration"]
+epochs_per_iteration = ppo_config["epochs_per_iteration"]
+num_iter = ppo_config["number_of_iterations"]
+entropy_weight = Float32(ppo_config["entropy"])
+
+optimizer = ADAM(1f-4)
+
 
 PPO.ppo_iterate!(policy, 
                  wrapper, 
@@ -31,4 +60,5 @@ PPO.ppo_iterate!(policy,
                  evaluator,
                  epochs_per_iteration,
                  discount,
-                 epsilon)
+                 epsilon,
+                 entropy_weight)

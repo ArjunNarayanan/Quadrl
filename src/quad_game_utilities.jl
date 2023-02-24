@@ -26,6 +26,7 @@ include("step.jl")
 #####################################################################################################################
 # EVALUATING PERFORMANCE
 mutable struct SaveBestModel
+    root_dir
     file_path
     num_trajectories
     best_return
@@ -41,7 +42,7 @@ mutable struct SaveBestModel
         mean_returns = []
         std_returns = []
         action_counts = []
-        new(file_path, num_trajectories, -Inf, mean_returns, std_returns, action_counts)
+        new(root_dir, file_path, num_trajectories, -Inf, mean_returns, std_returns, action_counts)
     end
 end
 
@@ -65,6 +66,11 @@ function (s::SaveBestModel)(policy, wrapper)
     push!(s.mean_returns, ret)
     push!(s.std_returns, dev)
     push!(s.action_counts, action_counts)
+end
+
+function PPO.save_loss(s::SaveBestModel, loss)
+    outfile = joinpath(s.root_dir, "loss.bson")
+    BSON.@save outfile loss
 end
 
 function single_trajectory_return_and_action_stats(policy, env)

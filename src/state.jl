@@ -49,18 +49,15 @@ end
 struct StateData
     vertex_score::Any
     action_mask
+    optimum_return
 end
 
 function Base.show(io::IO, s::StateData)
     println(io, "StateData")
 end
 
-function Flux.gpu(state::StateData)
-    return StateData(gpu(vertex_score), gpu(action_mask))
-end
-
-function Flux.cpu(state::StateData)
-    return StateData(cpu(state.vertex_score), cpu(state.action_mask))
+function Flux.gpu(s::StateData)
+    return StateData(gpu(s.vertex_score), gpu(s.action_mask), s.optimum_return)
 end
 
 function pad_vertex_scores(vertex_scores_vector)
@@ -85,28 +82,36 @@ function prepare_state_data_for_batching(state_data_vector)
 
     padded_vertex_scores = pad_vertex_scores(vertex_score)
     padded_action_mask = pad_action_mask(action_mask)
+    opt_return = [s.optimum_return for s in state_data_vector]
 
-    state_data = [StateData(vs, am) for (vs, am) in zip(padded_vertex_scores, padded_action_mask)]
+    state_data = [StateData(vs, am, opt) for (vs, am, opt) in zip(padded_vertex_scores, padded_action_mask, opt_return)]
     return state_data
 end
 
 function PPO.prepare_rollouts_for_training(rollouts)
     state_data = prepare_state_data_for_batching(rollouts.state_data)
-    selected_ap = gpu(rollouts.selected_action_probabilities)
-    selected_actions = gpu(rollouts.selected_actions)
-    rewards = gpu(rollouts.rewards)
-    terminal = gpu(rollouts.terminal)
-    gpu_rollouts = PPO.EpisodeData(state_data, selected_ap, selected_actions, rewards, terminal)
-    return gpu_rollouts
+    opt_return = [s.optimum_return for s in state_data]
+    
+    normalized_advantage = rollouts.rewards ./ opt_return
+    
+    rollouts = PPO.EpisodeData(
+        state_data,
+        rollouts.selected_action_probabilities,
+        rollouts.selected_actions,
+        normalized_advantage,
+        rollouts.terminal
+    )
+    return rollouts
 end
 
 function PPO.batch_state(state_data_vector)
     vs = [s.vertex_score for s in state_data_vector]
     am = [s.action_mask for s in state_data_vector]
+    opt_return = [s.optimum_return for s in state_data_vector]
 
     batch_vertex_score = cat(vs..., dims=3)
     batch_action_mask = cat(am..., dims=2)
-    return StateData(batch_vertex_score, batch_action_mask)
+    return StateData(batch_vertex_score, batch_action_mask, opt_return)
 end
 
 function val_or_missing(vector, template, missing_val)
@@ -134,7 +139,7 @@ function PPO.state(wrapper)
     template = QM.make_level4_template(env.mesh)
     @assert length(env.vertex_score) == length(env.mesh.degree)
     
-    am = action_mask(template) |> gpu
+    am = action_mask(template)
 
     vertex_score = Float32.(env.vertex_score)
     push!(vertex_score, 0.0f0)
@@ -146,9 +151,10 @@ function PPO.state(wrapper)
     vs = vertex_score[template]
     vd = vertex_degree[template]
     
-    matrix = vcat(vs, vd) |> gpu
+    matrix = vcat(vs, vd)
+    opt_return = wrapper.current_score - wrapper.opt_score
     
-    s = StateData(matrix, am)
+    s = StateData(matrix, am, opt_return)
 
     return s
 end
