@@ -12,15 +12,15 @@ title = "Quadrl model-1 config"
 
 [environment]
   polygon_degree = 10
-  max_actions = 20
+  max_actions = 40
   quad_alg = "catmull-clark"
 
 [PPO]
   epsilon = 0.05
   discount = 1.0
-  minibatch_size = 64
-  episodes_per_iteration = 200
-  epochs_per_iteration = 20
+  minibatch_size = 32
+  episodes_per_iteration = 100
+  epochs_per_iteration = 10
   number_of_iterations = 2000
   entropy = 0.01
 

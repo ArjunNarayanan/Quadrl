@@ -79,7 +79,8 @@ function single_trajectory_return_and_action_stats(policy, env)
     done = PPO.is_terminal(env)
 
     while !done
-        probs = PPO.action_probabilities(policy, PPO.state(env))
+        state = PPO.state(env) |> gpu
+        probs = PPO.action_probabilities(policy, state) |> cpu
         action = rand(Categorical(probs))
         @assert probs[action] > 0.0
         _, _, action_type = index_to_action(action)
@@ -145,7 +146,8 @@ function best_single_trajectory_return(policy, wrapper)
     minscore = wrapper.current_score
 
     while !done
-        probs = PPO.action_probabilities(policy, PPO.state(wrapper))
+        state = PPO.state(wrapper) |> gpu
+        probs = PPO.action_probabilities(policy, state) |> cpu
         action = rand(Categorical(probs))
 
         PPO.step!(wrapper, action)
