@@ -75,11 +75,44 @@ function (s::SaveBestModel)(policy, wrapper)
     push!(s.action_counts, action_counts)
 
     save_evaluator(s)
+
+    efficiency = average_mesh_efficiency(policy, wrapper, s.num_trajectories)
+    println("AVG MESH EFFICIENCY : ", efficiency)
 end
 
 function PPO.save_loss(s::SaveBestModel, loss)
     outfile = joinpath(s.root_dir, "loss.bson")
     BSON.@save outfile loss
+end
+
+function single_trajectory_mesh_efficiency(policy, env)
+    efficiency_history = Float64[]
+    done = PPO.is_terminal(env)
+
+    while !done
+        num_quads = QM.number_of_quads(env.env.mesh)
+        quad_buffer = QM.quad_buffer(env.env.mesh)
+        efficiency = num_quads/quad_buffer
+        push!(efficiency_history, efficiency)
+
+        state = PPO.state(env) |> gpu
+        probs = PPO.action_probabilities(policy, state) |> cpu
+        action = rand(Categorical(probs))
+        @assert probs[action] > 0.0
+        PPO.step!(env, action)
+
+        done = PPO.is_terminal(env)
+    end
+    return efficiency_history
+end
+
+function average_mesh_efficiency(policy, env, num_trajectories)
+    efficiency = Float64[]
+    for iter in 1:num_trajectories
+        _efficiency = single_trajectory_mesh_efficiency(policy, env)
+        append!(efficiency, _efficiency)
+    end
+    return Flux.mean(efficiency)
 end
 
 function single_trajectory_return_and_action_stats(policy, env)
