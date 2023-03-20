@@ -47,7 +47,8 @@ mutable struct SaveBestModel
 end
 
 function save_model(s::SaveBestModel, policy)
-    data = Dict("policy" => policy)
+    cpu_policy = cpu(policy)
+    data = Dict("policy" => cpu_policy)
     println("SAVING MODEL AT : " * s.file_path * "\n\n")
     BSON.@save s.file_path data
 end

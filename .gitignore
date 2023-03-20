@@ -1,3 +1,4 @@
 *.bson
 *.sh
 output/*
+*.out

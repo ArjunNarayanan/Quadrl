@@ -60,6 +60,10 @@ function Flux.gpu(s::StateData)
     return StateData(gpu(s.vertex_score), gpu(s.action_mask), s.optimum_return)
 end
 
+function Flux.cpu(s::StateData)
+    return StateData(cpu(s.vertex_score), cpu(s.action_mask), s.optimum_return)
+end
+
 function pad_vertex_scores(vertex_scores_vector)
     num_half_edges = [size(vs, 2) for vs in vertex_scores_vector]
     max_num_half_edges = maximum(num_half_edges)

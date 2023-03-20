@@ -22,7 +22,8 @@ function initialize_environment(env_config)
 end
 
 
-ARGS = ["output/model-1/config.toml"]
+# ARGS = ["output/model-1/config.toml"]
+
 @assert length(ARGS) == 1 "Missing path to config file"
 config_file = ARGS[1]
 println("\t\tUSING CONFIG FILE : ", config_file)
@@ -49,6 +50,8 @@ num_iter = ppo_config["number_of_iterations"]
 entropy_weight = Float32(ppo_config["entropy"])
 
 optimizer = ADAM(1f-4)
+
+
 
 
 PPO.ppo_iterate!(policy, 
