@@ -47,8 +47,16 @@ mutable struct SaveBestModel
 end
 
 function save_model(s::SaveBestModel, policy)
-    d = Dict("evaluator" => s, "policy" => policy)
-    BSON.@save s.file_path d
+    data = Dict("policy" => policy)
+    println("SAVING MODEL AT : " * s.file_path * "\n\n")
+    BSON.@save s.file_path data
+end
+
+function save_evaluator(s::SaveBestModel)
+    data = Dict("evaluator" => s)
+    filepath = joinpath(s.root_dir, "evaluator.bson")
+    println("SAVING EVALUATOR AT : ", filepath, "\n")
+    BSON.@save filepath data
 end
 
 function (s::SaveBestModel)(policy, wrapper)
@@ -56,16 +64,16 @@ function (s::SaveBestModel)(policy, wrapper)
     if ret > s.best_return
         s.best_return = ret
         @printf "\nNEW BEST RETURN : %1.4f\n" ret
-        println("SAVING MODEL AT : " * s.file_path * "\n\n")
         save_model(s, policy)
     end
 
     @printf "RET = %1.4f\tDEV = %1.4f\n" ret dev
     println("ACTION COUNTS: ", action_counts, "\n")
-
     push!(s.mean_returns, ret)
     push!(s.std_returns, dev)
     push!(s.action_counts, action_counts)
+
+    save_evaluator(s)
 end
 
 function PPO.save_loss(s::SaveBestModel, loss)
