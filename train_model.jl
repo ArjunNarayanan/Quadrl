@@ -22,7 +22,7 @@ function initialize_environment(env_config)
 end
 
 
-# ARGS = ["output/model-1/config.toml"]
+# ARGS = ["output/model-5/config.toml"]
 
 @assert length(ARGS) == 1 "Missing path to config file"
 config_file = ARGS[1]

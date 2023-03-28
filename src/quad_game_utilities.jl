@@ -109,6 +109,7 @@ end
 function average_mesh_efficiency(policy, env, num_trajectories)
     efficiency = Float64[]
     for iter in 1:num_trajectories
+        PPO.reset!(env)
         _efficiency = single_trajectory_mesh_efficiency(policy, env)
         append!(efficiency, _efficiency)
     end
