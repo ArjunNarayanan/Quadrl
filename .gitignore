@@ -2,3 +2,4 @@
 *.sh
 output/*
 *.out
+.DS_Store
