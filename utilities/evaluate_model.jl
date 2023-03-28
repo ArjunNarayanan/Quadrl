@@ -8,10 +8,10 @@ data = BSON.load(data_filename)[:data]
 policy = data["policy"]
 
 env = RandPolyEnv(10, 20, "catmull-clark")
-# ret, dev = average_normalized_returns(policy, env, 100)
+ret, dev = average_normalized_returns(policy, env, 100)
 # ret, dev = average_normalized_best_returns(policy, env, 100)
 
-include("../src/plot.jl")
-root_dir = "output/model-1/figures/rollout-2"
-PPO.reset!(env)
-plot_trajectory(policy, env, root_dir)
+# include("../src/plot.jl")
+# root_dir = "output/model-1/figures/rollout-2"
+# PPO.reset!(env)
+# plot_trajectory(policy, env, root_dir)

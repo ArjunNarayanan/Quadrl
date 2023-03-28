@@ -1,0 +1,8 @@
+[deps]
+BSON = "fbb218c0-5317-5bc6-957e-2ee96dd4b1f0"
+Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
+Flux = "587475ba-b771-5e3f-ad9e-33799f191a9c"
+PlotQuadMesh = "f8738a56-6654-4070-8861-884d9be46750"
+ProximalPolicyOptimization = "8e250718-78ce-4eef-8efa-960b62b39feb"
+QuadMeshGame = "b8dfd2ad-ed09-4480-aaba-9cf555b7c6b8"
+RandomQuadMesh = "1033c436-49f1-455f-b2c2-3821fef5dd59"
