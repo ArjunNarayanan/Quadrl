@@ -48,7 +48,7 @@ We use abbreviations of package names to access package methods,
 - `PQ = PlotQuadMesh`
 - `PPO = ProximalPolicyOptimization`
 
-Create a random polygon environment using syntax `RandPolyEnv(polygon_degree, max_steps, quad_algorithm)`. `max_steps` is the maximum number of actions the policy can take before the environment terminates. `RandPolyEnv` is a wrapper around a `GameEnv` type provided by the `QuadMeshGame.jl` package.
+Create a random polygon environment using syntax `RandPolyEnv(polygon_degree, max_steps, quad_algorithm)`. `max_steps` is the maximum number of actions the policy can take before the environment terminates. `RandPolyEnv` is a wrapper around a `GameEnv` type provided by the [QuadMeshGame.jl](https://github.com/ArjunNarayanan/QuadMeshGame.jl) package.
 
 ```julia
 wrapper = RandPolyEnv(10, 20, "catmull-clark")
@@ -109,7 +109,7 @@ julia> average_normalized_returns(policy, wrapper, 100)
 
 ## Using other meshes
 
-Here's how you can use a generic `QuadMeshGame` mesh object. (See that package for details on how to initialize a mesh.) Use the `FixedMeshEnv(mesh, desired_degree, max_actions)` method.
+Here's how you can use a generic `QuadMesh` object from the [QuadMeshGame.jl](https://github.com/ArjunNarayanan/QuadMeshGame.jl) package. (See that package for details on how to initialize a mesh.) Use the `FixedMeshEnv(mesh, desired_degree, max_actions)` method.
 
 ```julia
 include("fixed_mesh_environment.jl")
