@@ -1,5 +1,4 @@
 using Flux
-using PlotQuadMesh
 using RandomQuadMesh
 using QuadMeshGame
 using ProximalPolicyOptimization
@@ -10,7 +9,6 @@ using Printf
 RQ = RandomQuadMesh
 QM = QuadMeshGame
 PPO = ProximalPolicyOptimization
-PQ = PlotQuadMesh
 
 const NUM_ACTIONS_PER_EDGE = 5
 const NO_ACTION_REWARD = -1

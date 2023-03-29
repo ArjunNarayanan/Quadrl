@@ -66,7 +66,7 @@ function Base.show(io::IO, wrapper::RandPolyEnv)
     show(io, wrapper.env)
 end
 
-function PPO.reset!(wrapper)
+function PPO.reset!(wrapper::RandPolyEnv)
     mesh, d0 = initialize_random_mesh(wrapper.poly_degree, wrapper.quad_alg)
     wrapper.env = QM.GameEnv(mesh, d0)
     wrapper.current_score = global_score(wrapper.env.vertex_score)
