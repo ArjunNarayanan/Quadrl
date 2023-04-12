@@ -4,7 +4,11 @@ function initialize_random_mesh(poly_degree, quad_alg)
     bdry_d0 = QM.desired_degree.(angles)
 
     mesh = RQ.quad_mesh(boundary_pts, algorithm=quad_alg)
-    mesh = QM.QuadMesh(mesh.p, mesh.t)
+    num_vertices = size(mesh.p, 2)
+    is_geometric_vertex = falses(num_vertices)
+    is_geometric_vertex[1:poly_degree] .= true
+
+    mesh = QM.QuadMesh(mesh.p, mesh.t, is_geometric_vertex = is_geometric_vertex)
 
     mask = .![trues(poly_degree); falses(mesh.num_vertices - poly_degree)]
     mask = mask .& mesh.vertex_on_boundary[mesh.active_vertex]

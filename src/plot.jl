@@ -2,18 +2,6 @@ using PlotQuadMesh
 PQ = PlotQuadMesh
 #####################################################################################################################
 # PLOTTING STUFF
-function plot_mesh(mesh)
-    mesh = deepcopy(mesh)
-    QM.reindex_quads!(mesh)
-    QM.reindex_vertices!(mesh)
-    fig, ax = PQ.plot_mesh(QM.active_vertex_coordinates(mesh),
-        QM.active_quad_connectivity(mesh),
-        elem_numbers=elem_numbers,
-        internal_order=internal_order,
-        node_numbers=node_numbers)
-    return fig
-end
-
 function plot_env_score!(ax, score; coords = (0.8, 0.8), fontsize = 50)
     tpars = Dict(
         :color => "black",
@@ -26,12 +14,13 @@ function plot_env_score!(ax, score; coords = (0.8, 0.8), fontsize = 50)
     ax.text(coords[1], coords[2], score; tpars...)
 end
 
-function plot_env(env, score, number_elements = false, internal_order = false)
+function plot_env(env, score, number_elements = false, internal_order = false, mark_geometric_vertices = false)
     env = deepcopy(env)
 
     QM.reindex_game_env!(env)
     mesh = env.mesh
     vs = QM.active_vertex_score(env)
+    mark_vertices = mark_geometric_vertices ? findall(env.mesh.is_geometric_vertex) : []
 
     fig, ax = PQ.plot_mesh(
         QM.active_vertex_coordinates(mesh),
@@ -39,7 +28,8 @@ function plot_env(env, score, number_elements = false, internal_order = false)
         vertex_score=vs,
         vertex_size = 30,
         number_elements = number_elements,
-        internal_order = internal_order
+        internal_order = internal_order,
+        mark_vertices = mark_vertices
     )
     
     plot_env_score!(ax, score)
@@ -47,14 +37,15 @@ function plot_env(env, score, number_elements = false, internal_order = false)
     return fig, ax
 end
 
-function plot_wrapper(wrapper, filename = ""; smooth_iterations = 5, number_elements = false)
+function plot_wrapper(wrapper, filename = ""; smooth_iterations = 5, number_elements = false, mark_geometric_vertices = false)
     smooth_wrapper!(wrapper, smooth_iterations)
 
     text = string(wrapper.current_score) * " / " * string(wrapper.opt_score)
 
     internal_order = number_elements
     element_numbers = number_elements ? findall(wrapper.env.mesh.active_quad) : false
-    fig, ax = plot_env(wrapper.env, text, element_numbers, internal_order)
+
+    fig, ax = plot_env(wrapper.env, text, element_numbers, internal_order, mark_geometric_vertices)
     ax.set_xlim(-1, 1)
     ax.set_ylim(-1, 1)
 
