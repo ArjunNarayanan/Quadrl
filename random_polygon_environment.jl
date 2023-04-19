@@ -50,7 +50,8 @@ mutable struct RandPolyEnv
     opt_score
     is_terminated
     reward
-    function RandPolyEnv(poly_degree, max_actions, quad_alg)
+    cleanup
+    function RandPolyEnv(poly_degree, max_actions, quad_alg, cleanup)
         @assert max_actions > 0
         @assert poly_degree > 3
 
@@ -58,10 +59,10 @@ mutable struct RandPolyEnv
         env = QM.GameEnv(mesh, d0)
         current_score = global_score(env.vertex_score)
         opt_score = optimal_score(env.vertex_score)
-        reward = 0
+        reward = 0.0f0
         num_actions = 0
         is_terminated = check_terminated(current_score, opt_score, num_actions, max_actions)
-        new(poly_degree, quad_alg, num_actions, max_actions, env, current_score, opt_score, is_terminated, reward)
+        new(poly_degree, quad_alg, num_actions, max_actions, env, current_score, opt_score, is_terminated, reward, cleanup)
     end
 end
 
@@ -82,8 +83,18 @@ function PPO.reset!(wrapper::RandPolyEnv)
 end
 
 function update_env_after_step!(wrapper)
+    if wrapper.cleanup
+        maxsteps = 2 * QM.number_of_quads(wrapper.env.mesh)
+        QM.cleanup_env!(wrapper.env, maxsteps)
+    end
+
     wrapper.current_score = global_score(wrapper.env.vertex_score)
     wrapper.num_actions += 1
-    wrapper.is_terminated = check_terminated(wrapper.current_score, wrapper.opt_score, 
-        wrapper.num_actions, wrapper.max_actions)
+    wrapper.is_terminated = check_terminated(
+        wrapper.current_score, 
+        wrapper.opt_score, 
+        wrapper.num_actions, 
+        wrapper.max_actions
+    )
+    
 end

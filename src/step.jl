@@ -53,7 +53,8 @@ function step_wrapper!(wrapper, quad, edge, type)
     elseif type == 4
         success = QM.step_collapse!(env, quad, edge)
     elseif type == 5
-        success = QM.step_global_split_without_loops!(env, quad, edge, 100)
+        maxsplits = 2*QM.number_of_quads(env.mesh)
+        success = QM.step_global_split_without_loops!(env, quad, edge, maxsplits)
     else
         error("Unexpected action type $type")
     end

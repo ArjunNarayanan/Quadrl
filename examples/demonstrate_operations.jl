@@ -8,31 +8,19 @@ data_filename = "output/model-1/best_model.bson"
 data = BSON.load(data_filename)[:data]
 policy = data["policy"]
 
-wrapper = RandPolyEnv(10, 20, "catmull-clark")
+wrapper = RandPolyEnv(10, 20, "catmull-clark", false)
 
-PPO.reset!(wrapper)
-original_wrapper = deepcopy(wrapper)
-fig = plot_wrapper(original_wrapper)
-fig.savefig("figures/example_meshes/mesh-5-initial.png")
+# PPO.reset!(wrapper)
+# original_wrapper = deepcopy(wrapper)
+# fig = plot_wrapper(original_wrapper)
+# fig.savefig("figures/example_meshes/mesh-5-initial.png")
 
-best_wrapper = best_state_in_rollout(wrapper, policy)
-fig = plot_wrapper(best_wrapper, mark_geometric_vertices=false)
-fig.savefig("figures/example_meshes/mesh-5-improved.png")
-
-QM.cleanup_env!(best_wrapper.env, 20)
-fig = plot_wrapper(best_wrapper, mark_geometric_vertices=false)
-fig.savefig("figures/example_meshes/mesh-5-clean.png")
-
-# state = PPO.state(wrapper)
-# action_probabilities = PPO.action_probabilities(policy, state)
-# action = rand(Categorical(action_probabilities))
-# PPO.step!(wrapper, action)
-
-# fig = plot_wrapper(wrapper)
-# fig.savefig("figures/example_meshes/mesh-3.png")
+# best_wrapper = best_state_in_rollout(wrapper, policy)
+# fig = plot_wrapper(best_wrapper, mark_geometric_vertices=false)
+# fig.savefig("figures/example_meshes/mesh-5-improved.png")
 
 # ret, dev = average_normalized_returns(policy, wrapper, 100)
-# ret, dev = average_normalized_best_returns(policy, env, 100)
+# ret, dev = average_normalized_best_returns(policy, wrapper, 100)
 
 
 # mesh, d0 = initialize_random_mesh(10, "catmull-clark")
@@ -41,6 +29,6 @@ fig.savefig("figures/example_meshes/mesh-5-clean.png")
 # plot_wrapper(wrapper)
 # ret, dev = average_normalized_returns(policy, wrapper, 100)
 
-# root_dir = "output/model-1/figures/rollout-2"
-# PPO.reset!(env)
-# plot_trajectory(policy, env, root_dir)
+# root_dir = "figures/model-1/rollout-3"
+# PPO.reset!(wrapper)
+# plot_trajectory(policy, wrapper, root_dir)

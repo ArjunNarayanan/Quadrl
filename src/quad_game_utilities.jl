@@ -1,10 +1,12 @@
 using Flux
 using RandomQuadMesh
 using QuadMeshGame
-using ProximalPolicyOptimization
 using Distributions: Categorical
 using BSON
 using Printf
+
+using Revise
+using ProximalPolicyOptimization
 
 RQ = RandomQuadMesh
 QM = QuadMeshGame
@@ -73,9 +75,6 @@ function (s::SaveBestModel)(policy, wrapper)
     push!(s.action_counts, action_counts)
 
     save_evaluator(s)
-
-    efficiency = average_mesh_efficiency(policy, wrapper, s.num_trajectories)
-    println("AVG MESH EFFICIENCY : ", efficiency)
 end
 
 function PPO.save_loss(s::SaveBestModel, loss)

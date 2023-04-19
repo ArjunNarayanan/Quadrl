@@ -41,6 +41,17 @@ function make_level4_template(pairs, x)
 
     return template
 end
+
+
+function level4_active_template(wrapper)
+    @assert !wrapper_requires_reindex(wrapper)
+    num_quads = QM.number_of_quads(wrapper.env.mesh)
+    active_half_edges = 1:4*num_quads
+    template = QM.make_level4_template(wrapper.env.mesh)
+    active_template = template[:, active_half_edges]
+    return active_template
+end
+
 #####################################################################################################################
 
 
@@ -92,23 +103,9 @@ function prepare_state_data_for_batching(state_data_vector)
     return state_data
 end
 
-function PPO.prepare_rollouts_for_training(rollouts)
-    state_data = prepare_state_data_for_batching(rollouts.state_data)
-    opt_return = [s.optimum_return for s in state_data]
-    
-    normalized_advantage = rollouts.rewards ./ opt_return
-    
-    rollouts = PPO.EpisodeData(
-        state_data,
-        rollouts.selected_action_probabilities,
-        rollouts.selected_actions,
-        normalized_advantage,
-        rollouts.terminal
-    )
-    return rollouts
-end
-
 function PPO.batch_state(state_data_vector)
+    state_data_vector = prepare_state_data_for_batching(state_data_vector)
+
     vs = [s.vertex_score for s in state_data_vector]
     am = [s.action_mask for s in state_data_vector]
     opt_return = [s.optimum_return for s in state_data_vector]
@@ -123,7 +120,7 @@ function val_or_missing(vector, template, missing_val)
 end
 
 function action_mask_value(flag)
-    if flag 
+    if flag
         return -Inf32
     else
         return 0.0f0
@@ -138,26 +135,36 @@ function action_mask(template)
     return mask
 end
 
-function PPO.state(wrapper)
-    env = wrapper.env
-    template = QM.make_level4_template(env.mesh)
-    @assert length(env.vertex_score) == length(env.mesh.degree)
-    
-    am = action_mask(template)
+function wrapper_requires_reindex(wrapper)
+    return (QM.number_of_quads(wrapper.env.mesh) < wrapper.env.mesh.new_quad_pointer - 1) ||
+           (QM.number_of_vertices(wrapper.env.mesh) < wrapper.env.mesh.new_vertex_pointer - 1)
+end
 
-    vertex_score = Float32.(env.vertex_score)
+function PPO.state(wrapper)
+    if wrapper_requires_reindex(wrapper)
+        QM.reindex_game_env!(wrapper.env)
+    end
+
+    env = wrapper.env
+    template = level4_active_template(wrapper)
+
+    am = action_mask(template)
+    @assert all(am .== 0.0f0)
+
+    vertex_score = Float32.(QM.active_vertex_score(env))
     push!(vertex_score, 0.0f0)
-    vertex_degree = Float32.(env.mesh.degree)
+    vertex_degree = Float32.(QM.active_vertex_degrees(env.mesh))
     push!(vertex_degree, 0.0f0)
+    @assert length(vertex_score) == length(vertex_degree)
 
     missing_index = length(vertex_score)
-    template[template .== 0] .= missing_index
+    template[template.==0] .= missing_index
     vs = vertex_score[template]
     vd = vertex_degree[template]
-    
+
     matrix = vcat(vs, vd)
     opt_return = wrapper.current_score - wrapper.opt_score
-    
+
     s = StateData(matrix, am, opt_return)
 
     return s
@@ -170,5 +177,9 @@ function PPO.number_of_actions_per_state(state)
     @assert ndims(am) == 2
     @assert size(vs, 2) * NUM_ACTIONS_PER_EDGE == size(am, 1)
     return size(am, 1)
+end
+
+function PPO.batch_advantage(state, returns)
+    return returns ./ state.optimum_return
 end
 #####################################################################################################################

@@ -1,6 +1,6 @@
 *.bson
 *.sh
-output/*
 *.out
 .DS_Store
 figures/*
+*.csv
