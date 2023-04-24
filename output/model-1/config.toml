@@ -13,8 +13,9 @@ title = "Quadrl model-1 config"
   output_channels = 5
 
 [environment]
-  polygon_degree = 10
-  max_actions = 20
+  min_polygon_degree = 10
+  max_polygon_degree = 30
+  max_actions_factor = 2
   quad_alg = "catmull-clark"
   cleanup = true
 

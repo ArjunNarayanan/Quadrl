@@ -1,5 +1,5 @@
-# Based on model-1
-# Setting entropy to zero
+# BASELINE MODEL
+
 title = "Quadrl model-2 config"
 
 [evaluator]
@@ -13,9 +13,11 @@ title = "Quadrl model-2 config"
   output_channels = 5
 
 [environment]
-  polygon_degree = 10
-  max_actions = 20
+  min_polygon_degree = 10
+  max_polygon_degree = 30
+  max_actions_factor = 3
   quad_alg = "catmull-clark"
+  cleanup = true
 
 [PPO]
   epsilon = 0.05
@@ -24,5 +26,5 @@ title = "Quadrl model-2 config"
   episodes_per_iteration = 50
   epochs_per_iteration = 10
   number_of_iterations = 2000
-  entropy = 0.0
+  entropy = 0.001
 

@@ -41,9 +41,11 @@ function check_terminated(current_score, opt_score, num_actions, max_actions)
 end
 
 mutable struct RandPolyEnv
+    poly_degree_list
     poly_degree
     quad_alg
     num_actions
+    max_actions_factor
     max_actions::Any
     env::Any
     current_score
@@ -51,10 +53,12 @@ mutable struct RandPolyEnv
     is_terminated
     reward
     cleanup
-    function RandPolyEnv(poly_degree, max_actions, quad_alg, cleanup)
-        @assert max_actions > 0
-        @assert poly_degree > 3
+    function RandPolyEnv(poly_degree_list, max_actions_factor, quad_alg, cleanup)
+        @assert max_actions_factor > 0
+        @assert all(poly_degree_list .> 3)
 
+        poly_degree = rand(poly_degree_list)
+        max_actions = max_actions_factor*poly_degree
         mesh, d0 = initialize_random_mesh(poly_degree, quad_alg)
         env = QM.GameEnv(mesh, d0)
         current_score = global_score(env.vertex_score)
@@ -62,16 +66,33 @@ mutable struct RandPolyEnv
         reward = 0.0f0
         num_actions = 0
         is_terminated = check_terminated(current_score, opt_score, num_actions, max_actions)
-        new(poly_degree, quad_alg, num_actions, max_actions, env, current_score, opt_score, is_terminated, reward, cleanup)
+        new(
+            poly_degree_list,
+            poly_degree, 
+            quad_alg, 
+            num_actions,
+            max_actions_factor, 
+            max_actions, 
+            env, 
+            current_score, 
+            opt_score, 
+            is_terminated, 
+            reward, 
+            cleanup
+        )
     end
 end
 
 function Base.show(io::IO, wrapper::RandPolyEnv)
     println(io, "RandPolyEnv")
+    println(io, "\t$(wrapper.poly_degree) polygon degree")
+    println(io, "\t$(wrapper.max_actions) max actions")
     show(io, wrapper.env)
 end
 
 function PPO.reset!(wrapper::RandPolyEnv)
+    wrapper.poly_degree = rand(wrapper.poly_degree_list)
+    wrapper.max_actions = wrapper.max_actions_factor * wrapper.poly_degree
     mesh, d0 = initialize_random_mesh(wrapper.poly_degree, wrapper.quad_alg)
     wrapper.env = QM.GameEnv(mesh, d0)
     wrapper.current_score = global_score(wrapper.env.vertex_score)
