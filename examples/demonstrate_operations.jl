@@ -4,13 +4,14 @@ include("../random_polygon_environment.jl")
 include("../src/plot.jl")
 include("../fixed_mesh_environment.jl")
 
-# data_filename = "output/model-1/best_model.bson"
-# data = BSON.load(data_filename)[:data]
-# policy = data["policy"]
+data_filename = "output/model-1/best_model.bson"
+data = BSON.load(data_filename)[:data]
+policy = data["policy"]
 
-# evaluator = BSON.load("output/model-1/evaluator.bson")[:data]["evaluator"]
-# fig, ax = plot_normalized_returns(evaluator.mean_returns, evaluator.std_returns)
-# ax.set_ylim([0.,1.])
+evaluator = BSON.load("output/model-1/evaluator.bson")[:data]["evaluator"]
+fig, ax = plot_normalized_returns(evaluator.mean_returns, evaluator.std_returns)
+ax.set_ylim([0.,1.])
+fig
 # fig.savefig("output/model-1/returns.png")
 
 
