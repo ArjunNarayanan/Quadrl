@@ -61,6 +61,7 @@ struct StateData
     vertex_score::Any
     action_mask
     optimum_return
+    env
 end
 
 function Base.show(io::IO, s::StateData)
@@ -68,11 +69,21 @@ function Base.show(io::IO, s::StateData)
 end
 
 function Flux.gpu(s::StateData)
-    return StateData(gpu(s.vertex_score), gpu(s.action_mask), s.optimum_return)
+    return StateData(
+        gpu(s.vertex_score), 
+        gpu(s.action_mask), 
+        s.optimum_return,
+        s.env
+    )
 end
 
 function Flux.cpu(s::StateData)
-    return StateData(cpu(s.vertex_score), cpu(s.action_mask), s.optimum_return)
+    return StateData(
+        cpu(s.vertex_score), 
+        cpu(s.action_mask), 
+        s.optimum_return,
+        s.env
+    )
 end
 
 function pad_vertex_scores(vertex_scores_vector)
@@ -98,8 +109,9 @@ function prepare_state_data_for_batching(state_data_vector)
     padded_vertex_scores = pad_vertex_scores(vertex_score)
     padded_action_mask = pad_action_mask(action_mask)
     opt_return = [s.optimum_return for s in state_data_vector]
+    envs = [s.env for s in state_data_vector]
 
-    state_data = [StateData(vs, am, opt) for (vs, am, opt) in zip(padded_vertex_scores, padded_action_mask, opt_return)]
+    state_data = [StateData(vs, am, opt, env) for (vs, am, opt, env) in zip(padded_vertex_scores, padded_action_mask, opt_return, envs)]
     return state_data
 end
 
@@ -109,10 +121,11 @@ function PPO.batch_state(state_data_vector)
     vs = [s.vertex_score for s in state_data_vector]
     am = [s.action_mask for s in state_data_vector]
     opt_return = [s.optimum_return for s in state_data_vector]
+    envs = [s.env for s in state_data_vector]
 
     batch_vertex_score = cat(vs..., dims=3)
     batch_action_mask = cat(am..., dims=2)
-    return StateData(batch_vertex_score, batch_action_mask, opt_return)
+    return StateData(batch_vertex_score, batch_action_mask, opt_return, envs)
 end
 
 function val_or_missing(vector, template, missing_val)
@@ -165,7 +178,7 @@ function PPO.state(wrapper)
     matrix = vcat(vs, vd)
     opt_return = wrapper.current_score - wrapper.opt_score
 
-    s = StateData(matrix, am, opt_return)
+    s = StateData(matrix, am, opt_return, wrapper)
 
     return s
 end
