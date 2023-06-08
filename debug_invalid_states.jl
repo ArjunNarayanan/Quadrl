@@ -9,4 +9,10 @@ data = BSON.load(data_filename)[:data]
 policy = data["policy"]
 
 wrapper = RandPolyEnv(10:30, 3, "catmull-clark", true)
-ret, dev = average_normalized_returns(policy, wrapper, 10000)
+
+data_path = "output/debug/"
+episodes_per_iteration=50
+discount=1.0
+
+rollouts = PPO.Rollouts(data_path)
+PPO.collect_rollouts!(rollouts, wrapper, policy, episodes_per_iteration, discount)

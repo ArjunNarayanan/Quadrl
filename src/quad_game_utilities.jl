@@ -53,6 +53,13 @@ function save_model(s::SaveBestModel, policy)
     BSON.@save s.file_path data
 end
 
+function save_model_and_optimizer(s::SaveBestModel, policy, optimizer)
+    cpu_policy = cpu(policy)
+    data = Dict("policy" => cpu_policy, "optimizer" => optimizer)
+    println("SAVING MODEL AT : " * s.file_path * "\n\n")
+    BSON.@save s.file_path data
+end
+
 function save_evaluator(s::SaveBestModel)
     data = Dict("evaluator" => s)
     filepath = joinpath(s.root_dir, "evaluator.bson")
@@ -60,12 +67,12 @@ function save_evaluator(s::SaveBestModel)
     BSON.@save filepath data
 end
 
-function (s::SaveBestModel)(policy, wrapper)
+function (s::SaveBestModel)(policy, wrapper, optimizer)
     ret, dev, action_counts = average_normalized_returns_and_action_stats(policy, wrapper, s.num_trajectories)
     if ret > s.best_return
         s.best_return = ret
         @printf "\nNEW BEST RETURN : %1.4f\n" ret
-        save_model(s, policy)
+        save_model_and_optimizer(s, policy, optimizer)
     end
 
     @printf "RET = %1.4f\tDEV = %1.4f\n" ret dev
