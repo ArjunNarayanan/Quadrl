@@ -38,7 +38,15 @@ function plot_env(env, score, number_elements = false, internal_order = false, m
     return fig, ax
 end
 
-function plot_wrapper(wrapper, filename = ""; smooth_iterations = 5, number_elements = false, mark_geometric_vertices = false)
+function plot_wrapper(
+    wrapper, 
+    filename = ""; 
+    xlim=nothing,
+    ylim=nothing,
+    smooth_iterations = 5, 
+    number_elements = false, 
+    mark_geometric_vertices = false
+    )
     smooth_wrapper!(wrapper, smooth_iterations)
 
     text = string(wrapper.current_score) * " / " * string(wrapper.opt_score)
@@ -47,8 +55,17 @@ function plot_wrapper(wrapper, filename = ""; smooth_iterations = 5, number_elem
     element_numbers = number_elements ? findall(wrapper.env.mesh.active_quad) : false
 
     fig, ax = plot_env(wrapper.env, text, element_numbers, internal_order, mark_geometric_vertices)
-    ax.set_xlim(-1, 1)
-    ax.set_ylim(-1, 1)
+    if isnothing(xlim)
+        ax.set_xlim(-1, 1)
+    else
+        ax.set_xlim(xlim...)
+    end
+
+    if isnothing(ylim)
+        ax.set_ylim(-1, 1)
+    else
+        ax.set_ylim(ylim...)
+    end
 
     if length(filename) > 0
         fig.tight_layout()

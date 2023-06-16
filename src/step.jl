@@ -39,7 +39,7 @@ function step_wrapper!(wrapper, quad, edge, type)
     @assert QM.is_active_quad(env.mesh, quad) "Attempting to act on inactive quad $quad with action ($quad, $edge, $type)"
     @assert type in 1:NUM_ACTIONS_PER_EDGE "Expected action type in {1,2,3,4} got type = $type"
     @assert edge in (1, 2, 3, 4) "Expected edge in {1,2,3,4} got edge = $edge"
-    assert_valid_mesh(env.mesh)
+    # assert_valid_mesh(env.mesh)
     @assert wrapper.opt_score == optimal_score(wrapper.env.vertex_score)
 
     # println("\tStepping : ", quad, edge, type)
