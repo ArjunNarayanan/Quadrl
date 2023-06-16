@@ -1,3 +1,5 @@
+using Pkg
+Pkg.activate(".")
 using TOML
 include("src/quad_game_utilities.jl")
 include("random_polygon_environment.jl")
@@ -24,9 +26,9 @@ function initialize_environment(env_config)
 end
 
 
-ARGS = ["output/model-1/config.toml"]
+# ARGS = ["output/model-1/config.toml"]
 
-# @assert length(ARGS) == 1 "Missing path to config file"
+@assert length(ARGS) == 1 "Missing path to config file"
 config_file = ARGS[1]
 println("\t\tUSING CONFIG FILE : ", config_file)
 config = TOML.parsefile(config_file)

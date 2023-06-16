@@ -5,7 +5,7 @@ using Distributions: Categorical
 using BSON
 using Printf
 
-using Revise
+# using Revise
 using ProximalPolicyOptimization
 
 RQ = RandomQuadMesh
