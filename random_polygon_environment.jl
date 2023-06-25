@@ -117,5 +117,4 @@ function update_env_after_step!(wrapper)
         wrapper.num_actions, 
         wrapper.max_actions
     )
-    
 end

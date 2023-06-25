@@ -37,21 +37,30 @@ function is_valid_mesh(mesh)
     QM.all_active_quad_or_boundary(mesh)
 end
 
+function terminate_invalid_environment(wrapper)
+    opt_return = wrapper.current_score - wrapper.opt_score
+    # set the reward such that the normalized reward is -1
+    wrapper.reward = -1.0 * opt_return
+    wrapper.is_terminated = true
+end
 
 function step_wrapper!(wrapper, quad, edge, type)
     env = wrapper.env
     previous_score = wrapper.current_score
     success = false
 
-    @assert QM.is_active_quad(env.mesh, quad) "Attempting to act on inactive quad $quad with action ($quad, $edge, $type)"
+    # @assert QM.is_active_quad(env.mesh, quad) "Attempting to act on inactive quad $quad with action ($quad, $edge, $type)"
     @assert type in 1:NUM_ACTIONS_PER_EDGE "Expected action type in {1,2,3,4} got type = $type"
     @assert edge in (1, 2, 3, 4) "Expected edge in {1,2,3,4} got edge = $edge"
-    # assert_valid_mesh(env.mesh)
     @assert wrapper.opt_score == optimal_score(wrapper.env.vertex_score)
 
-    # println("\tStepping : ", quad, edge, type)
 
-    if type == 1
+    if !is_valid_mesh(env.mesh)
+        terminate_invalid_environment(wrapper)
+        return
+    elseif !QM.is_active_quad(env.mesh, quad)
+        success = false
+    elseif type == 1
         success = QM.step_left_flip!(env, quad, edge)
     elseif type == 2
         success = QM.step_right_flip!(env, quad, edge)
