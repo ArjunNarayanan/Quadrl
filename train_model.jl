@@ -55,22 +55,22 @@ entropy_weight = Float32(ppo_config["entropy"])
 
 optimizer = ADAM(1f-4)
 
-data_path = joinpath(output_dir, "data")
+# data_path = joinpath(output_dir, "data")
 
 # rollouts = PPO.Rollouts(data_path)
 # PPO.collect_rollouts!(rollouts, wrapper, policy, episodes_per_iteration, discount)
 
-PPO.ppo_iterate!(
-    policy,
-    wrapper,
-    optimizer,
-    episodes_per_iteration,
-    minibatch_size,
-    num_iter,
-    evaluator,
-    epochs_per_iteration,
-    discount,
-    epsilon,
-    entropy_weight,
-    data_path
-)
+# PPO.ppo_iterate!(
+#     policy,
+#     wrapper,
+#     optimizer,
+#     episodes_per_iteration,
+#     minibatch_size,
+#     num_iter,
+#     evaluator,
+#     epochs_per_iteration,
+#     discount,
+#     epsilon,
+#     entropy_weight,
+#     data_path
+# )

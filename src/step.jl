@@ -31,6 +31,13 @@ function assert_valid_mesh(mesh)
     @assert QM.all_active_quad_or_boundary(mesh) "Found inactive quads in mesh q2q"
 end
 
+function is_valid_mesh(mesh)
+    return QM.all_active_vertices(mesh) && 
+    QM.no_quad_self_reference(mesh) &&
+    QM.all_active_quad_or_boundary(mesh)
+end
+
+
 function step_wrapper!(wrapper, quad, edge, type)
     env = wrapper.env
     previous_score = wrapper.current_score
