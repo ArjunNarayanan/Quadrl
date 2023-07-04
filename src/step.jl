@@ -9,7 +9,7 @@ function PPO.is_terminal(wrapper)
 end
 
 function index_to_action(index)
-    actions_per_quad = 4 * NUM_ACTIONS_PER_EDGE
+    actions_per_quad = NUM_EDGES_PER_ELEMENT * NUM_ACTIONS_PER_EDGE
 
     quad = div(index - 1, actions_per_quad) + 1
 

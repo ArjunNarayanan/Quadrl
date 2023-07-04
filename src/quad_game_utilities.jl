@@ -13,6 +13,7 @@ QM = QuadMeshGame
 PPO = ProximalPolicyOptimization
 
 const NUM_ACTIONS_PER_EDGE = 5
+const NUM_EDGES_PER_ELEMENT = 4
 const NO_ACTION_REWARD = -1
 
 include("state.jl")

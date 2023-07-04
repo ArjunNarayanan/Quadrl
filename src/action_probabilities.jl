@@ -6,7 +6,6 @@ function PPO.action_probabilities(policy, state)
     vertex_score, action_mask = state.vertex_score, state.action_mask
     logits = vec(policy(vertex_score)) + action_mask
     p = softmax(logits)
-    p = p
 
     return p
 end

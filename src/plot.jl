@@ -15,22 +15,20 @@ function plot_env_score!(ax, score; coords = (0.8, 0.8), fontsize = 50)
     ax.text(coords[1], coords[2], score; tpars...)
 end
 
-function plot_env(env, score, number_elements = false, internal_order = false, mark_geometric_vertices = false)
+function plot_env(env, score, number_elements = false, internal_order = false)
     env = deepcopy(env)
 
-    QM.reindex_game_env!(env)
+    TM.reindex!(env)
     mesh = env.mesh
-    vs = QM.active_vertex_score(env)
-    mark_vertices = mark_geometric_vertices ? findall(env.mesh.is_geometric_vertex) : []
+    vs = TM.active_vertex_score(env)
 
-    fig, ax = PQ.plot_mesh(
-        QM.active_vertex_coordinates(mesh),
-        QM.active_quad_connectivity(mesh),
+    fig, ax = MP.plot_mesh(
+        TM.active_vertex_coordinates(mesh),
+        TM.active_triangle_connectivity(mesh),
         vertex_score=vs,
         vertex_size = 30,
         number_elements = number_elements,
         internal_order = internal_order,
-        mark_vertices = mark_vertices
     )
     
     plot_env_score!(ax, score)
