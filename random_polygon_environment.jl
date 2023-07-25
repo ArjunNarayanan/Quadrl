@@ -1,7 +1,8 @@
-function initialize_random_mesh(poly_degree, quad_alg)
+function initialize_random_mesh(poly_degree, quad_alg, round_desired_degree)
     boundary_pts = RQ.random_polygon(poly_degree)
     angles = QM.polygon_interior_angles(boundary_pts)
-    bdry_d0 = QM.desired_degree.(angles)
+
+    bdry_d0 = round_desired_degree ? QM.rounded_desired_degree.(angles) : QM.continuous_desired_degree.(angles)
 
     mesh = RQ.quad_mesh(boundary_pts, algorithm=quad_alg)
     num_vertices = size(mesh.p, 2)
@@ -53,13 +54,20 @@ mutable struct RandPolyEnv
     is_terminated
     reward
     cleanup
-    function RandPolyEnv(poly_degree_list, max_actions_factor, quad_alg, cleanup)
+    round_desired_degree
+    function RandPolyEnv(
+        poly_degree_list, 
+        max_actions_factor, 
+        quad_alg, 
+        cleanup,
+        round_desired_degree
+    )
         @assert max_actions_factor > 0
         @assert all(poly_degree_list .> 3)
 
         poly_degree = rand(poly_degree_list)
         max_actions = max_actions_factor*poly_degree
-        mesh, d0 = initialize_random_mesh(poly_degree, quad_alg)
+        mesh, d0 = initialize_random_mesh(poly_degree, quad_alg, round_desired_degree)
         env = QM.GameEnv(mesh, d0)
         current_score = global_score(env.vertex_score)
         opt_score = optimal_score(env.vertex_score)
@@ -78,7 +86,8 @@ mutable struct RandPolyEnv
             opt_score, 
             is_terminated, 
             reward, 
-            cleanup
+            cleanup,
+            round_desired_degree
         )
     end
 end
@@ -93,7 +102,11 @@ end
 function PPO.reset!(wrapper::RandPolyEnv)
     wrapper.poly_degree = rand(wrapper.poly_degree_list)
     wrapper.max_actions = wrapper.max_actions_factor * wrapper.poly_degree
-    mesh, d0 = initialize_random_mesh(wrapper.poly_degree, wrapper.quad_alg)
+    mesh, d0 = initialize_random_mesh(
+        wrapper.poly_degree, 
+        wrapper.quad_alg,
+        wrapper.round_desired_degree
+    )
     wrapper.env = QM.GameEnv(mesh, d0)
     wrapper.current_score = global_score(wrapper.env.vertex_score)
     wrapper.reward = 0

@@ -1,9 +1,10 @@
 # BASELINE MODEL
+# Using continuous score on boundary
 
-title = "Quadrl model-1 config"
+title = "Quadrl model-3 config"
 
 [evaluator]
-  output_directory = "output/model-1"
+  output_directory = "output/model-3"
   num_evaluation_trajectories = 100
 
 [policy]
@@ -18,6 +19,7 @@ title = "Quadrl model-1 config"
   max_actions_factor = 2
   quad_alg = "catmull-clark"
   cleanup = true
+  round_desired_degree = false
 
 [PPO]
   epsilon = 0.05

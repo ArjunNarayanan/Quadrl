@@ -1,5 +1,3 @@
-using Pkg
-Pkg.activate(".")
 using TOML
 include("src/quad_game_utilities.jl")
 include("random_polygon_environment.jl")
@@ -20,13 +18,11 @@ function initialize_environment(env_config)
         polygon_degree_list,
         env_config["max_actions_factor"],
         env_config["quad_alg"],
-        env_config["cleanup"]
+        env_config["cleanup"],
+        env_config["round_desired_degree"]
     )
     return env
 end
-
-
-# ARGS = ["output/model-1/config.toml"]
 
 @assert length(ARGS) == 1 "Missing path to config file"
 config_file = ARGS[1]
