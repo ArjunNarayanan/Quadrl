@@ -25,7 +25,8 @@ mutable struct FixedMeshEnv
     opt_score
     is_terminated
     reward
-    function FixedMeshEnv(mesh, desired_degree, max_actions)
+    cleanup
+    function FixedMeshEnv(mesh, desired_degree, max_actions, cleanup)
         @assert max_actions > 0
         mesh0 = deepcopy(mesh)
         d0 = deepcopy(desired_degree)
@@ -35,7 +36,18 @@ mutable struct FixedMeshEnv
         reward = 0
         num_actions = 0
         is_terminated = check_terminated(current_score, opt_score, num_actions, max_actions)
-        new(mesh0, d0, num_actions, max_actions, env, current_score, opt_score, is_terminated, reward)
+        new(
+            mesh0, 
+            d0, 
+            num_actions, 
+            max_actions, 
+            env, 
+            current_score, 
+            opt_score, 
+            is_terminated, 
+            reward,
+            cleanup
+        )
     end
 end
 

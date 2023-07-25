@@ -24,6 +24,7 @@ title = "Quadrl model-1 config"
   discount = 1.0
   minibatch_size = 64
   episodes_per_iteration = 50
-  epochs_per_iteration = 5
+  epochs_per_iteration = 10
   number_of_iterations = 2000
   entropy = 0.005
+

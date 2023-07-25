@@ -254,4 +254,13 @@ function best_state_in_rollout(wrapper, policy)
 
     return best_wrapper
 end
+
+function best_normalized_best_return(policy, wrapper, num_trajectories)
+    ret = zeros(num_trajectories)
+    for idx = 1:num_trajectories
+        PPO.reset!(wrapper)
+        ret[idx] = best_normalized_single_trajectory_return(policy, wrapper)
+    end
+    return maximum(ret)
+end
 #####################################################################################################################
