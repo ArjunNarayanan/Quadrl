@@ -24,6 +24,7 @@ function initialize_environment(env_config)
     return env
 end
 
+ARGS = ["output/model-3/config.toml"]
 @assert length(ARGS) == 1 "Missing path to config file"
 config_file = ARGS[1]
 println("\t\tUSING CONFIG FILE : ", config_file)
@@ -49,7 +50,15 @@ epochs_per_iteration = ppo_config["epochs_per_iteration"]
 num_iter = ppo_config["number_of_iterations"]
 entropy_weight = Float32(ppo_config["entropy"])
 
-optimizer = ADAM(1f-4)
+opt_config = config["optimizer"]
+lr = Float32(opt_config["lr"])
+decay = Float32(opt_config["decay"])
+decay_step = opt_config["decay_step"]
+lr_clip = opt_config["clip"]
+adam_optimizer = ADAM(lr)
+scheduler = ExpDecay(1f0, decay, decay_step, lr_clip)
+optimizer = Flux.Optimise.Optimiser(adam_optimizer, scheduler)
+
 
 data_path = joinpath(output_dir, "data")
 

@@ -29,3 +29,9 @@ title = "Quadrl model-3 config"
   epochs_per_iteration = 5
   number_of_iterations = 2000
   entropy = 0.001
+
+[optimizer]
+  lr = 1e-4
+  decay = 0.95
+  decay_step = 3000
+  clip = 1e-6
