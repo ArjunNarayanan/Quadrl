@@ -24,7 +24,7 @@ function initialize_environment(env_config)
     return env
 end
 
-ARGS = ["output/model-3/config.toml"]
+
 @assert length(ARGS) == 1 "Missing path to config file"
 config_file = ARGS[1]
 println("\t\tUSING CONFIG FILE : ", config_file)

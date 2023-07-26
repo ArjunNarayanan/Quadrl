@@ -1,9 +1,10 @@
 # BASELINE MODEL
+# Increasing number of samples per iteration
 
-title = "Quadrl model-1 config"
+title = "Quadrl model-4 config"
 
 [evaluator]
-  output_directory = "output/model-1"
+  output_directory = "output/model-4"
   num_evaluation_trajectories = 100
 
 [policy]
@@ -18,13 +19,19 @@ title = "Quadrl model-1 config"
   max_actions_factor = 2
   quad_alg = "catmull-clark"
   cleanup = true
-  round_desired_degree = true
+  round_desired_degree = false
 
 [PPO]
   epsilon = 0.05
   discount = 1.0
   minibatch_size = 64
-  episodes_per_iteration = 50
+  episodes_per_iteration = 100
   epochs_per_iteration = 5
   number_of_iterations = 2000
   entropy = 0.001
+
+[optimizer]
+  lr = 1e-4
+  decay = 0.95
+  decay_step = 3000
+  clip = 1e-6
