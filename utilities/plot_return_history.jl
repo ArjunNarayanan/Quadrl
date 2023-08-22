@@ -3,7 +3,8 @@ include("../src/quad_game_utilities.jl")
 using PyPlot
 
 
-input_model = "model-1"
+# input_model = "model-2"
+input_model = ARGS[1]
 input_dir = joinpath("output", input_model)
 output_dir = joinpath(input_dir, "figures")
 

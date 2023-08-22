@@ -11,7 +11,8 @@ function initialize_environment(env_config)
         polygon_degree_list,
         env_config["max_actions_factor"],
         env_config["quad_alg"],
-        env_config["cleanup"]
+        env_config["cleanup"],
+        env_config["round_desired_degree"]
     )
     return env
 end
@@ -23,7 +24,8 @@ function initialize_fixed_environment(env_config)
     max_actions = env_config["max_actions_factor"]*polygon_degree
     mesh, d0 = initialize_random_mesh(
         polygon_degree,
-        env_config["quad_alg"]
+        env_config["quad_alg"],
+        env_config["round_desired_degree"]
     )
     cleanup = env_config["cleanup"]
     env = FixedMeshEnv(mesh, d0, max_actions, cleanup)
@@ -42,7 +44,8 @@ function average_best_fixed_environment_returns(
     return Flux.mean(ret), Flux.std(ret)
 end
 
-model_name = "model-1"
+
+model_name = "model-2"
 input_dir = joinpath("output", model_name)
 data_filename = joinpath(input_dir, "best_model.bson")
 data = BSON.load(data_filename)[:data];
@@ -57,17 +60,18 @@ wrapper = initialize_environment(config["environment"])
 PPO.reset!(wrapper)
 
 # fig = plot_wrapper(wrapper)
+
 # fig.savefig("figures/example_meshes/mesh-2.png")
 # ret, dev = average_normalized_returns(policy, wrapper, 100)
-ret, dev = average_normalized_best_returns(policy, wrapper, 100)
-ret, dev = average_best_fixed_environment_returns(
-    policy,
-    20,
-    100
-)
+# ret, dev = average_normalized_best_returns(policy, wrapper, 100)
+# ret, dev = average_best_fixed_environment_returns(
+#     policy,
+#     20,
+#     100
+# )
 
-# rollout = 1
-# output_dir = joinpath(input_dir, "figures", "rollout-"*string(rollout))
-# PPO.reset!(wrapper)
-# plot_trajectory(policy, wrapper, output_dir)
-# rollout += 1
+rollout = 1
+output_dir = joinpath(input_dir, "figures", "rollout-"*string(rollout))
+PPO.reset!(wrapper)
+plot_trajectory(policy, wrapper, output_dir)
+rollout += 1

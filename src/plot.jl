@@ -1,5 +1,6 @@
 using PlotQuadMesh
 using PyPlot
+using Printf
 PQ = PlotQuadMesh
 #####################################################################################################################
 # PLOTTING STUFF
@@ -20,7 +21,6 @@ function plot_env(
     score, 
     number_elements = false, 
     internal_order = false,
-    mark_geometric_vertices=false,
 )
     env = deepcopy(env)
 
@@ -32,9 +32,10 @@ function plot_env(
         QM.active_vertex_coordinates(mesh),
         QM.active_quad_connectivity(mesh),
         vertex_score=vs,
-        vertex_size = 30,
+        vertex_size = 60,
         number_elements = number_elements,
         internal_order = internal_order,
+        figsize=(20,20)
     )
     
     plot_env_score!(ax, score)
@@ -48,12 +49,14 @@ function plot_wrapper(
     xlim=nothing,
     ylim=nothing,
     smooth_iterations = 5, 
-    number_elements = false, 
-    mark_geometric_vertices = false
+    number_elements = false,
     )
     smooth_wrapper!(wrapper, smooth_iterations)
-
-    text = string(wrapper.current_score) * " / " * string(wrapper.opt_score)
+    
+    format_score(s) = isinteger(s) ? @sprintf("%1d", s) : @sprintf("%1.1f", s)
+    cs = format_score(wrapper.current_score)
+    os = format_score(wrapper.opt_score)
+    text = cs * " / " * os
 
     internal_order = number_elements
     element_numbers = number_elements ? findall(wrapper.env.mesh.active_quad) : false
@@ -63,7 +66,6 @@ function plot_wrapper(
         text, 
         element_numbers, 
         internal_order, 
-        mark_geometric_vertices
     )
 
     if isnothing(xlim)
