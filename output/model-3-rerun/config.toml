@@ -1,0 +1,37 @@
+# BASELINE MODEL
+# Sanity checking model-3 run
+
+title = "Quadrl model-3-rerun config"
+
+[evaluator]
+  output_directory = "output/model-3-rerun"
+  num_evaluation_trajectories = 100
+
+[policy]
+  input_channels = 216
+  hidden_channels = 128
+  num_hidden_layers = 5
+  output_channels = 5
+
+[environment]
+  min_polygon_degree = 10
+  max_polygon_degree = 10
+  max_actions_factor = 2
+  quad_alg = "catmull-clark"
+  cleanup = true
+  round_desired_degree = false
+
+[PPO]
+  epsilon = 0.05
+  discount = 1.0
+  minibatch_size = 64
+  episodes_per_iteration = 50
+  epochs_per_iteration = 5
+  number_of_iterations = 2000
+  entropy = 0.001
+
+[optimizer]
+  lr = 1e-4
+  decay = 0.95
+  decay_step = 3000
+  clip = 1e-6
